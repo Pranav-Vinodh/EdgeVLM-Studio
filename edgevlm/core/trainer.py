@@ -83,7 +83,11 @@ class EdgeVLMTrainer:
         amp_mode = self.config.training.mixed_precision.lower()
         self.use_amp = (self.device.type == "cuda") and (amp_mode in ["fp16", "bf16"])
         self.amp_dtype = torch.bfloat16 if amp_mode == "bf16" else torch.float16
-        self.scaler = torch.cuda.amp.GradScaler(enabled=(self.use_amp and amp_mode == "fp16"))
+        # Scaler setup with PyTorch modern amp API
+        try:
+            self.scaler = torch.amp.GradScaler("cuda", enabled=(self.use_amp and amp_mode == "fp16"))
+        except (TypeError, AttributeError):
+            self.scaler = torch.cuda.amp.GradScaler(enabled=(self.use_amp and amp_mode == "fp16"))
 
         os.makedirs(self.config.training.output_dir, exist_ok=True)
 

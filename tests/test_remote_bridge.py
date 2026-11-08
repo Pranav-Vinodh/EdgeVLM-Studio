@@ -19,13 +19,13 @@ def test_colab_server_auth_rejection():
     client = TestClient(server.app)
 
     # Missing token
-    resp_missing = client.post("/train/start", json=TrainingPayload().dict())
+    resp_missing = client.post("/train/start", json=TrainingPayload().model_dump())
     assert resp_missing.status_code == 401
 
     # Invalid token
     headers = {"Authorization": "Bearer wrong_token"}
     resp_invalid = client.post(
-        "/train/start", json=TrainingPayload().dict(), headers=headers
+        "/train/start", json=TrainingPayload().model_dump(), headers=headers
     )
     assert resp_invalid.status_code == 403
 
@@ -37,7 +37,7 @@ def test_colab_server_training_lifecycle():
 
     # Start training
     payload = TrainingPayload(epochs=1)
-    resp = client.post("/train/start", json=payload.dict(), headers=headers)
+    resp = client.post("/train/start", json=payload.model_dump(), headers=headers)
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "started"
@@ -60,7 +60,7 @@ def test_colab_server_remote_inference():
     headers = {"Authorization": "Bearer secret123"}
 
     payload = InferencePayload(prompt="Test prompt")
-    resp = client.post("/inference", json=payload.dict(), headers=headers)
+    resp = client.post("/inference", json=payload.model_dump(), headers=headers)
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "success"
