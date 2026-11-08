@@ -1,0 +1,56 @@
+# Configuration for PaliGemma-2 on Spatial Grounding (Object Detection & Bounding Box)
+# Multi-task loss: Cross-Entropy + Smooth L1 + Generalized IoU (GIoU)
+
+model:
+  name_or_path: "google/paligemma2-3b-pt-448"
+  family: "paligemma"
+  torch_dtype: "bfloat16"
+  trust_remote_code: true
+  device_map: "auto"
+
+peft:
+  vision_rank: 8
+  vision_alpha: 16
+  language_rank: 16
+  language_alpha: 32
+  projector_rank: 32
+  projector_alpha: 64
+  use_dora: true
+  target_vision: true
+  target_projector: true
+  target_language: true
+  quant_type: "nf4"
+  double_quant: true
+  lora_dropout: 0.05
+
+pruner:
+  enabled: true
+  keep_ratio: 0.50
+  min_keep_patches: 64
+  pooling_strategy: "mean_cross_attn"
+
+training:
+  output_dir: "./outputs/paligemma2_grounding"
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  num_train_epochs: 5
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 4
+  mixed_precision: "bf16"
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+  logging_steps: 10
+  save_steps: 100
+  seed: 42
+  losses:
+    lambda_ce: 1.0
+    lambda_l1: 1.0
+    lambda_giou: 2.0
+
+serving:
+  kv_cache_prefix_enabled: true
+  speculative_enabled: false
+  draft_model_name: null
+  lookahead_k: 4

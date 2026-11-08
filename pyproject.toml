@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edgevlm"
+version = "0.1.0"
+description = "Modular Fine-Tuning and Quantized Edge Inference Framework for Compact Vision-Language Models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Pranav Vinodh"}
+]
+dependencies = [
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "transformers>=4.45.0",
+    "peft>=0.10.0",
+    "accelerate>=0.28.0",
+    "bitsandbytes>=0.43.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "streamlit>=1.32.0",
+    "pillow>=10.0.0",
+    "psutil>=5.9.0",
+    "einops>=0.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "black>=24.0.0",
+    "ruff>=0.3.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["edgevlm*"]

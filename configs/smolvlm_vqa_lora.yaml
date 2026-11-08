@@ -1,0 +1,56 @@
+# Configuration for SmolVLM fine-tuning on Visual Question Answering (VQA)
+# Optimized for single-GPU consumer & edge environments (e.g. Colab T4 16GB)
+
+model:
+  name_or_path: "HuggingFaceTB/SmolVLM-Instruct"
+  family: "smolvlm"
+  torch_dtype: "bfloat16"
+  trust_remote_code: true
+  device_map: "auto"
+
+peft:
+  vision_rank: 8
+  vision_alpha: 16
+  language_rank: 16
+  language_alpha: 32
+  projector_rank: 32
+  projector_alpha: 64
+  use_dora: true
+  target_vision: true
+  target_projector: true
+  target_language: true
+  quant_type: "nf4"
+  double_quant: true
+  lora_dropout: 0.05
+
+pruner:
+  enabled: true
+  keep_ratio: 0.45
+  min_keep_patches: 32
+  pooling_strategy: "mean_cross_attn"
+
+training:
+  output_dir: "./outputs/smolvlm_vqa_lora"
+  learning_rate: 0.0002
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 4
+  mixed_precision: "bf16"
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+  logging_steps: 10
+  save_steps: 100
+  seed: 42
+  losses:
+    lambda_ce: 1.0
+    lambda_l1: 0.0
+    lambda_giou: 0.0
+
+serving:
+  kv_cache_prefix_enabled: true
+  speculative_enabled: true
+  draft_model_name: "HuggingFaceTB/SmolVLM-256M-Instruct"
+  lookahead_k: 4
